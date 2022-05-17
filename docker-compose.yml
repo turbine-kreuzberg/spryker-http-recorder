@@ -1,0 +1,18 @@
+version: '3'
+services:
+  php:
+    build:
+      context: images/php
+    working_dir: /data
+#    env_file:
+#      - .env
+    volumes:
+      - ./:/data:delegated
+    tty: true
+    stdin_open: true
+
+  composer:
+    image: composer:latest
+    command: install -o --ignore-platform-reqs
+    volumes:
+      - .:/app:delegated
