@@ -1,0 +1,55 @@
+{
+    "name": "turbine-kreuzberg/spryker-http-recorder",
+    "type": "library",
+    "license": "MIT",
+    "description": "HTTP recorder for Spryker based on php-vcr (https://php-vcr.github.io/)",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "authors": [
+        {
+            "name": "Bernd Alter",
+            "email": "bernd.alter@turbinekreuzberg.com"
+        },
+        {
+            "name": "Christian Müllenhagen",
+            "email": "christian.muellenhagen@turbinekreuzberg.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "TurbineKreuzberg\\": "src/TurbineKreuzberg/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "TurbineKreuzbergTest\\": "tests/TurbineKreuzbergTest/",
+            "Generated\\": "src/Generated/"
+        }
+    },
+    "require": {
+        "php": ">=8.0",
+        "php-vcr/php-vcr": "^1.6",
+        "spryker/kernel": "^3.54.0"
+    },
+    "require-dev": {
+        "codeception/module-asserts": "^1.3",
+        "fond-of-codeception/spryker": "^1.2",
+        "spryker/code-sniffer": "^0.16.0",
+        "spryker/container": "*",
+        "spryker/testify": "*",
+        "phpstan/phpstan": "^1.4"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "scripts": {
+        "tests": "vendor/bin/phpunit --colors=always -c tests/phpunit.xml",
+        "tests-coverage": "vendor/bin/phpunit --colors=always -c tests/phpunit.xml --coverage-text --coverage-html=tests/_output",
+        "phpstan": "vendor/bin/phpstan analyse",
+        "cs-check": "phpcs -p -s --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml src/TurbineKreuzberg/ tests/",
+        "cs-fix": "phpcbf -p --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml src/TurbineKreuzberg/ tests/"
+    }
+}
