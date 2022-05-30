@@ -1,0 +1,73 @@
+stages:
+  - build
+  - tests
+  - badges
+
+include:
+  - template: Composer.gitlab-ci.yml
+
+variables:
+  PHP_IMAGE: composer:latest
+  PYTHON_IMAGE: python:3.6.15
+
+.template-qa-step:
+  stage: tests
+  image: ${PHP_IMAGE}
+  timeout: 5m
+  variables:
+    QA_TOOL: ${CI_JOB_NAME}
+    STATUS: 0
+  before_script:
+    - composer install -o --ignore-platform-reqs
+    - echo "QA_TOOL_STATUS=failed" > ${QA_TOOL}.env
+  after_script:
+    - if [[ -f SUCCESS ]]; then echo "QA_TOOL_STATUS=success" > ${QA_TOOL}.env; fi
+  artifacts:
+    reports:
+      dotenv: ${QA_TOOL}.env
+    when: always
+    expire_in: 1 day
+
+phpstan:
+  extends: .template-qa-step
+  script:
+    - vendor/bin/phpstan analyse ./src ./tests -l 8
+    - touch SUCCESS
+
+code-sniffer:
+  extends: .template-qa-step
+  script:
+    - vendor/bin/phpcs src/ tests/ --standard=./config/codesniffer_ruleset.xml -p
+    - touch SUCCESS
+
+.template-create-badge:
+  stage: badges
+  image: ${PYTHON_IMAGE}
+  variables:
+    COLOR: green
+  before_script:
+    - pip install anybadge
+  script:
+    - anybadge -l ${QA_TOOL} -v ${QA_TOOL_STATUS} -c ${COLOR} -f ${QA_TOOL}.svg
+  artifacts:
+    paths:
+      - ${QA_TOOL}.svg
+    when: always
+    expire_in: 4 weeks
+  when: always
+  only:
+    - main
+
+badge_phpstan:
+  extends: .template-create-badge
+  variables:
+    QA_TOOL: phpstan
+  dependencies:
+    - phpstan
+
+badge_codesniffer:
+  extends: .template-create-badge
+  variables:
+    QA_TOOL: code-sniffer
+  dependencies:
+    - code-sniffer
